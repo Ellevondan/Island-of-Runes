@@ -47,8 +47,6 @@ class Game:
         
         self.scroll = [0, 0]
         
-        
-        
     def run(self):
         while True:
             self.display.blit(self.assets['background'], (0, 0))
