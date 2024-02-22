@@ -5,6 +5,7 @@ from scripts.utilites import load_image, load_images
 from scripts.tilemap import Tilemap
 from scripts.clouds import Clouds
 
+
 # Färger (Red, Green, Blue)
 sky_blue = (14, 219 ,248)
 
