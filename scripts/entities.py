@@ -27,7 +27,7 @@ class PhysicsEntity:
         self.collisons = {'up': False, 'down': False, 'right': False, 'left': False}
 
         frame_movement = (movement[0] + self.velocity[0], movement[1] + self.velocity[1])         
-        self.pos[0] += frame_movement[0] # Ändra hastighet på spelaren här
+        self.pos[0] += frame_movement[0] * 2 # Ändra hastighet på spelaren här
         
         entity_rect = self.rect()
         # Kollisionshantering x-axis
@@ -76,6 +76,8 @@ class Player(PhysicsEntity):
     def __init__(self, game, pos, size):
         super().__init__(game, 'player', pos, size)
         self.air_time = 0
+        self.jumps = 1
+        self.wall_slide = False
 
     def update(self, tilemap, movement=(0,0)):
         super().update(tilemap, movement=movement)
@@ -83,12 +85,52 @@ class Player(PhysicsEntity):
         self.air_time += 1
         if self.collisons['down']:
             self.air_time = 0
-
-        # När karaktären är i luften visas jump animationen
-        # air_time har högre prioritet än movement för att animationen ska inte visa att karaktären springer i luften    
-        if self.air_time > 4:
-            self.set_action('jump')
-        elif movement[0] != 0:
-            self.set_action('run')
+            self.jumps = 1
+            
+        self.wall_slide = False
+        if (self.collisons['right'] or self.collisons['left']) and self.air_time > 4:
+            self.wall_slide = True
+            self.velocity[1] = min(self.velocity [1], 0.5) # Cappar hastigheten på wall sliden till 0.5
+           
+            # Hanterar animatinen
+            if self.collisons['right']:
+                self.flip = False
+            else:
+                self.flip = True
+            self.set_action('wall_slide')
+        
+        if not self.wall_slide:
+            # När karaktären är i luften visas jump animationen
+            # air_time har högre prioritet än movement för att animationen ska inte visa att karaktären springer i luften    
+            if self.air_time > 4:
+                self.set_action('jump')
+            elif movement[0] != 0:
+                self.set_action('run')
+            else:
+                self.set_action('idle')
+                
+        if self.velocity[0] > 0:
+            self.velocity[0] = max(self.velocity[0] - 0.1, 0)
         else:
-            self.set_action('idle')
+            self.velocity[0] = min(self.velocity[0] + 0.1, 0)
+            
+    def jump(self):
+        if self.wall_slide:
+            if self.flip and self.last_movement[0] < 0:
+                self.velocity[0] = 3.5
+                self.velocity[1] = -2.5
+                self.air_time = 5
+                self.jumps = max(0, self.jumps - 1)
+                return True
+                
+            elif not self.flip and self.last_movement[0] > 0:
+                self.velocity[0] = -3.5
+                self.velocity[1] = -2.5
+                self.air_time = 5
+                self.jumps = max(0, self.jumps - 1)
+                return True
+                
+        elif self.jumps:
+            self.velocity[1] = -3
+            self.jumps -= 1
+            self.air_time = 5

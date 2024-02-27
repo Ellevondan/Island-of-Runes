@@ -52,6 +52,7 @@ class Game:
         self.player = Player(self, (50, 50), (8, 15))
         
         self.tilemap = Tilemap(self)
+        self.tilemap.load('map.json')
         
         self.scroll = [0, 0]
         
@@ -82,7 +83,7 @@ class Game:
                     if event.key == pygame.K_d:
                         self.movement[1] = True
                     if event.key == pygame.K_SPACE:
-                        self.player.velocity[1] = -3
+                        self.player.jump()
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_a:
