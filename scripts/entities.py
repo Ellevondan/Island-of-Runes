@@ -14,6 +14,8 @@ class PhysicsEntity:
         self.flip = False
         self.set_action('idle')
         
+        self.last_movement = [0, 0]
+        
     def rect(self): # Rect för spelaren
         return pygame.Rect(self.pos[0], self.pos[1], self.size[0], self.size[1])
 
@@ -27,7 +29,7 @@ class PhysicsEntity:
         self.collisons = {'up': False, 'down': False, 'right': False, 'left': False}
 
         frame_movement = (movement[0] + self.velocity[0], movement[1] + self.velocity[1])         
-        self.pos[0] += frame_movement[0] * 2 # Ändra hastighet på spelaren här
+        self.pos[0] += frame_movement[0] * 1.5 # Ändra hastighet på spelaren här
         
         entity_rect = self.rect()
         # Kollisionshantering x-axis
@@ -108,11 +110,13 @@ class Player(PhysicsEntity):
                 self.set_action('run')
             else:
                 self.set_action('idle')
-                
+
         if self.velocity[0] > 0:
             self.velocity[0] = max(self.velocity[0] - 0.1, 0)
         else:
             self.velocity[0] = min(self.velocity[0] + 0.1, 0)
+        
+        self.last_movement = movement
             
     def jump(self):
         if self.wall_slide:
