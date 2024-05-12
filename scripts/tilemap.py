@@ -21,13 +21,21 @@ NEIGHBOR_OFFSETS = [(-1, 0), (-1, -1), (0, -1) , (1, -1), (1, 0), (0, 0), (-1, 1
 PHYSICS_TILES = {'grass', 'stone'}
 AUTOTILE_TYPES = {'grass', 'stone'}
 
+
+class CollisionZone:
+    def __init__(self, pos, size, callback):
+        self.pos = pos
+        self.size = size
+        self.callback = callback
+        
 class Tilemap:
     def __init__(self, game, tile_size = 16):
         self.game = game
         self.tile_size = tile_size
         self.tilemap = {}
         self.offgrid_tiles = []
-    
+        self.collision_zones = []
+        
     def extract(self, id_pairs, keep=False):
         matches = []
         for tile in self.offgrid_tiles.copy():
@@ -103,3 +111,6 @@ class Tilemap:
                 if loc in self.tilemap:
                     tile = self.tilemap[loc]
                     surf.blit(self.game.assets[tile['type']][tile['variant']], (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))
+                    
+    def add_collision_zone(self, pos, size, callback):
+        self.collision_zones.append(CollisionZone(pos, size, callback))
