@@ -162,7 +162,16 @@ class Editor:
             self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
             pygame.display.update()
             self.clock.tick(60)
-
+    
+    def on_mouse_click(self, event):
+        if event.button == 1: # Left mouse button
+            if self.ongrid:
+                pos = (int((event.pos[0] + self.scroll[0]) // self.tilemap.tile_size), int((event.pos[1] + self.scroll[1]) // self.tilemap.tile_size))
+                self.add_collision_zone(pos, (50, 50), self.on_zone_collision)
+        
+    def add_collision_zone(self, pos, size, callback):
+        self.tilemap.add_collision_zone(pos, size, callback)
+        
 Editor().run()
             
       
