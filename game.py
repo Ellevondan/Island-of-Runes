@@ -6,7 +6,7 @@ from scripts.utilites import load_image, load_images, Animation
 from scripts.tilemap import Tilemap
 from scripts.clouds import Clouds
 from scripts.particle import Particle
-
+from scripts.tilemap import CollisionZone
 # Färger (Red, Green, Blue)
 sky_blue = (14, 219 ,248)
 
@@ -78,7 +78,8 @@ class Game:
         
         self.leaf_spawners = []
         for tree in self.tilemap.extract([('large_decor', 2)], keep=True):
-            self.leaf_spawners.append(pygame.Rect(4 + tree['pos'][0], 4 + tree['pos'][1], 23, 13)) # Offsets spawn locationen för löven så dom ej spawnar i top-left hörnet
+            if tree['variant'] == 2 and tree['type'] == 'large_decor': # Check if the large decor tile is a tree object
+                self.leaf_spawners.append(pygame.Rect(4 + tree['pos'][0], 4 + tree['pos'][1], 23, 13)) # Offsets spawn locationen för löven så dom ej spawnar i top-left hörnet
         
         self.particles = []
         self.scroll = [0, 0]
@@ -164,6 +165,10 @@ class Game:
                 if random.random() * 49999 < rect.width * rect.height: # 49999 är delay för spawnraten, utan den hade löv spawnat varje tick
                     pos = (rect.x + random.random() * rect.width, rect.y + random.random() *rect.height)
                     self.particles.append(Particle(self, 'leaf', pos, velocity=[-0.1, 0.3], frame = random.randint(0, 20)))
+            
+            for zone in self.tilemap.collision_zones:
+                if self.player.rect.colliderect(pygame.Rect(zone.pos, zone.size)):
+                    zone.callback()
             
             self.clouds.update()
             self.clouds.render(self.display, offset = render_scroll)
